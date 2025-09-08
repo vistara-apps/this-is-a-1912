@@ -3,15 +3,39 @@ import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import RightsCard from './components/RightsCard';
 import Dashboard from './components/Dashboard';
+import EscalationGuide from './components/EscalationGuide';
+import SubscriptionManager from './components/SubscriptionManager';
 import { rightsCards, categories } from './data/rightsCards';
+import { useUser } from './contexts/UserContext';
 
 function App() {
   const [activeCategory, setActiveCategory] = useState('home');
   const [searchTerm, setSearchTerm] = useState('');
-  const [purchasedCards, setPurchasedCards] = useState(['basic-rights-overview']); // Free card is pre-purchased
+  
+  // Use the user context for state management
+  const { 
+    canAccessCard, 
+    addPurchase, 
+    viewCard, 
+    addSearchTerm,
+    subscription,
+    setSubscription,
+    isPremiumUser
+  } = useUser();
 
-  const handlePurchase = (cardId) => {
-    setPurchasedCards(prev => [...prev, cardId]);
+  const handlePurchase = (cardId, amount) => {
+    addPurchase(cardId, amount);
+  };
+
+  const handleCardView = (cardId) => {
+    viewCard(cardId);
+  };
+
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    if (term.trim()) {
+      addSearchTerm(term);
+    }
   };
 
   const filteredCards = useMemo(() => {
@@ -43,14 +67,61 @@ function App() {
 
   const renderContent = () => {
     if (activeCategory === 'home') {
-      return <Dashboard purchasedCards={purchasedCards} rightsCards={rightsCards} />;
+      return <Dashboard rightsCards={rightsCards} />;
     }
 
     if (activeCategory === 'settings') {
       return (
-        <div className="bg-white rounded-xl shadow-card p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Settings</h2>
-          <p className="text-gray-600">Settings panel coming soon...</p>
+        <div className="space-y-6">
+          <SubscriptionManager 
+            userSubscription={subscription}
+            onSubscriptionChange={setSubscription}
+          />
+        </div>
+      );
+    }
+
+    if (activeCategory === 'escalation') {
+      return (
+        <div className="space-y-6">
+          <div className="bg-white rounded-xl shadow-card p-6">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2">Escalation & Recourse Guidance</h2>
+            <p className="text-gray-600 mb-6">
+              Step-by-step guidance for escalating rights violations and seeking recourse through proper channels.
+            </p>
+            
+            <div className="grid md:grid-cols-3 gap-4 mb-6">
+              {['Police Encounters', 'Workplace Rights', 'Housing Rights'].map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setActiveCategory(`escalation-${category.toLowerCase().replace(' ', '-')}`)}
+                  className="p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors"
+                >
+                  <h3 className="font-medium text-gray-900">{category}</h3>
+                  <p className="text-sm text-gray-600 mt-1">View escalation steps</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (activeCategory.startsWith('escalation-')) {
+      const category = activeCategory.replace('escalation-', '').replace('-', ' ');
+      const categoryName = category.split(' ').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join(' ');
+      
+      return (
+        <div className="space-y-6">
+          <button
+            onClick={() => setActiveCategory('escalation')}
+            className="text-purple-600 hover:text-purple-700 font-medium"
+          >
+            ← Back to Escalation Guide
+          </button>
+          <EscalationGuide category={categoryName} />
         </div>
       );
     }
@@ -77,8 +148,9 @@ function App() {
             <RightsCard
               key={card.cardId}
               card={card}
-              isPurchased={purchasedCards.includes(card.cardId)}
-              onPurchase={handlePurchase}
+              isPurchased={canAccessCard(card)}
+              onPurchase={(cardId) => handlePurchase(cardId, card.price)}
+              onView={() => handleCardView(card.cardId)}
             />
           ))}
         </div>
@@ -100,7 +172,7 @@ function App() {
         setActiveCategory={setActiveCategory}
         categories={categories}
         searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
+        setSearchTerm={handleSearch}
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">

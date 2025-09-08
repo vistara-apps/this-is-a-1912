@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Home, Shield, BookOpen, AlertTriangle, Settings, Star } from 'lucide-react';
+import { Search, Home, Shield, BookOpen, AlertTriangle, Settings, Star, Scale } from 'lucide-react';
 
 const Sidebar = ({ activeCategory, setActiveCategory, categories, searchTerm, setSearchTerm }) => {
   const menuItems = [
@@ -7,6 +7,7 @@ const Sidebar = ({ activeCategory, setActiveCategory, categories, searchTerm, se
     { id: 'emergency', label: 'Emergency Cards', icon: AlertTriangle },
     { id: 'scenarios', label: 'Scenario Guides', icon: Shield },
     { id: 'education', label: 'Education', icon: BookOpen },
+    { id: 'escalation', label: 'Escalation Guide', icon: Scale },
     { id: 'premium', label: 'Premium', icon: Star },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
