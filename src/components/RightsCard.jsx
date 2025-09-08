@@ -4,7 +4,7 @@ import { usePaymentContext } from '../hooks/usePaymentContext';
 import Modal from './Modal';
 import ReactMarkdown from 'react-markdown';
 
-const RightsCard = ({ card, isPurchased, onPurchase }) => {
+const RightsCard = ({ card, isPurchased, onPurchase, onView }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const { createSession } = usePaymentContext();
@@ -12,6 +12,7 @@ const RightsCard = ({ card, isPurchased, onPurchase }) => {
   const handleCardClick = () => {
     if (!card.isPremium || isPurchased) {
       setIsModalOpen(true);
+      if (onView) onView();
     }
   };
 

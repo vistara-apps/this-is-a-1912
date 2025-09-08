@@ -1,7 +1,9 @@
 import React from 'react';
-import { TrendingUp, Users, Clock, Star } from 'lucide-react';
+import { TrendingUp, Users, Clock, Star, Crown, Shield } from 'lucide-react';
+import { useUser } from '../contexts/UserContext';
 
-const Dashboard = ({ purchasedCards, rightsCards }) => {
+const Dashboard = ({ rightsCards }) => {
+  const { purchases, usage, subscription, isPremiumUser, totalSpent, memberSince } = useUser();
   const stats = [
     {
       label: 'Rights Cards',
@@ -11,22 +13,22 @@ const Dashboard = ({ purchasedCards, rightsCards }) => {
       bgColor: 'bg-purple-100'
     },
     {
-      label: 'Purchased',
-      value: purchasedCards.length,
+      label: 'Cards Purchased',
+      value: purchases.length,
       icon: TrendingUp,
       color: 'text-green-600',
       bgColor: 'bg-green-100'
     },
     {
-      label: 'Categories',
-      value: '8',
+      label: 'Cards Viewed',
+      value: usage.cardsViewed?.length || 0,
       icon: Users,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100'
     },
     {
-      label: 'Last Updated',
-      value: '2h ago',
+      label: 'Total Spent',
+      value: `$${totalSpent.toFixed(2)}`,
       icon: Clock,
       color: 'text-orange-600',
       bgColor: 'bg-orange-100'
@@ -59,13 +61,30 @@ const Dashboard = ({ purchasedCards, rightsCards }) => {
 
       {/* Welcome Section */}
       <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-6 text-white">
-        <h2 className="text-2xl font-bold mb-2">Welcome to Pocket Rights Pro</h2>
-        <p className="text-purple-100 mb-4">
-          Your essential guide to understanding and exercising your rights in any situation.
-        </p>
-        <button className="bg-white text-purple-600 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
-          Explore Rights Cards
-        </button>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-2xl font-bold mb-2">Welcome to Pocket Rights Pro</h2>
+            <p className="text-purple-100">
+              Your essential guide to understanding and exercising your rights in any situation.
+            </p>
+          </div>
+          {isPremiumUser && (
+            <div className="flex items-center space-x-2 bg-white bg-opacity-20 rounded-lg px-3 py-2">
+              <Crown className="w-5 h-5 text-yellow-300" />
+              <span className="text-sm font-medium">Premium Member</span>
+            </div>
+          )}
+        </div>
+        <div className="flex items-center space-x-4">
+          <button className="bg-white text-purple-600 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+            Explore Rights Cards
+          </button>
+          {!isPremiumUser && (
+            <button className="border border-white border-opacity-50 text-white px-6 py-2 rounded-lg font-medium hover:bg-white hover:bg-opacity-10 transition-colors">
+              Upgrade to Premium
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Recent Cards */}
